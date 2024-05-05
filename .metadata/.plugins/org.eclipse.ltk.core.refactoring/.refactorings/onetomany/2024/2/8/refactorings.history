@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename compilation unit &apos;com.jspiders.onetomany.DAO.CompanyDAO5.java&apos; to &apos;CompanyDAO4.java&apos;&#x0D;&#x0A;- Original project: &apos;onetomany&apos;&#x0D;&#x0A;- Original element: &apos;com.jspiders.onetomany.DAO.CompanyDAO5.java&apos;&#x0D;&#x0A;- Renamed element: &apos;com.jspiders.onetomany.DAO.CompanyDAO4.java&apos;" description="Rename compilation unit &apos;CompanyDAO5.java&apos;" flags="2" id="org.eclipse.jdt.ui.rename.compilationunit" input="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.jspiders.onetomany.DAO{CompanyDAO5.java" name="CompanyDAO4.java" references="false" stamp="1708759801922" version="1.0"/>
+</session>

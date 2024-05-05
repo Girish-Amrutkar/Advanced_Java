@@ -1,0 +1,15 @@
+package com.jspiders.studentmgmt.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import com.jspiders.studentmgmt.service.TeacherService;
+
+@Controller
+public class TeacherController {
+
+	@Autowired
+	private TeacherService teacherService;
+	
+	
+}

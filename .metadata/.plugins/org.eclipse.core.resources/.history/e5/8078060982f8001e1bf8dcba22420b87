@@ -1,0 +1,140 @@
+package com.jspiders.studentmgmt.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.jspiders.springmvc.dto.CarDTO;
+import com.jspiders.springmvc.dto.UserDTO;
+import com.jspiders.studentmgmt.dto.StudentDTO;
+import com.jspiders.studentmgmt.dto.TeacherDTO;
+import com.jspiders.studentmgmt.service.StudentService;
+import com.jspiders.studentmgmt.service.TeacherService;
+
+import net.bytebuddy.matcher.ModifierMatcher.Mode;
+
+@Controller
+public class StudentController {
+
+	@Autowired
+	private StudentService studentService;
+	@Autowired
+	private TeacherService teacherService;
+
+	@RequestMapping(path = "/add_page", method = RequestMethod.GET)
+	public String getAddPage(HttpSession httpSession) {
+		TeacherDTO signedInTeacher = (TeacherDTO) httpSession.getAttribute("teacher");
+		if (signedInTeacher != null) {
+			return "add_student";
+		} else {
+			return "sign_in";
+		}
+	}
+
+	@RequestMapping(path = "/add_student", method = RequestMethod.POST)
+	public String addStudent(@RequestParam(name = "name") String name, @RequestParam(name = "email") String email,
+			@RequestParam(name = "gender") String gender, @RequestParam(name = "mobile") long mobile, ModelMap modelMap,
+			HttpSession httpSession) {
+		TeacherDTO signedInTeacher = (TeacherDTO) httpSession.getAttribute("teacher");
+		if (signedInTeacher != null) {
+			StudentDTO addedStudent = studentService.addStudent(name, email, gender, mobile);
+			teacherService.updateTeacher(signedInTeacher, addedStudent);
+			modelMap.addAttribute("message", "Student Details Added Successfully");
+			return "add_student";
+		} else {
+			return "sign_in";
+		}
+	}
+	
+	@RequestMapping(path = "/students", method = RequestMethod.GET)
+	public String findAllStudents(ModelMap modelMap, HttpSession httpSession) {
+		TeacherDTO signedInTeacher = (TeacherDTO) httpSession.getAttribute("teacher");
+		if (signedInTeacher != null) {
+			List<StudentDTO> students = studentService.findAllStudents();
+			if (students != null) {
+				modelMap.addAttribute("students", students);
+			}else {
+				modelMap.addAttribute("message", "Students not Available...");
+			}
+			return "students";
+		}else {
+			return "sign_in";
+		}
+	}
+	
+	@RequestMapping(path = "/home", method = RequestMethod.GET)
+	public String getHomePage(HttpSession httpSession) {
+		TeacherDTO signedInTeacher = (TeacherDTO) httpSession.getAttribute("teacher");
+		if (signedInTeacher != null) {
+			return "home";
+		}else {
+			return "sign_in";
+		}
+	}
+	
+	@RequestMapping(path = "/all_students", method = RequestMethod.GET)
+	public String findAllStudentsByClass(HttpSession httpSession, ModelMap modelMap) {
+		TeacherDTO signedInTeacher = (TeacherDTO) httpSession.getAttribute("teacher");
+		if (signedInTeacher != null) {
+			List<StudentDTO> students = studentService.findAllStudentsByClass(signedInTeacher);
+			if (students != null) {
+				modelMap.addAttribute("students", students);
+			}else {
+				modelMap.addAttribute("message", "Students not available...");
+			}
+			return "all_students";
+		}else {
+			return "sign_in";
+		}
+	}
+	
+	@RequestMapping(path = "/delete_student", method = RequestMethod.POST)
+	public String deleteStudent(@RequestParam(name = "id") int id, ModelMap modelMap, HttpSession httpSession) {
+		TeacherDTO signedInTeacher = (TeacherDTO) httpSession.getAttribute("teacher");
+		studentService.deleteStudent(signedInTeacher, id);
+		List<StudentDTO> students = studentService.findAllStudentsByClass(signedInTeacher);
+		if (students != null) {
+			modelMap.addAttribute("students", students);
+			modelMap.addAttribute("message", "Student has been Deleted...");
+		}else {
+			modelMap.addAttribute("message", "Students not available");
+		}
+		return "all_students";
+	}
+	
+	@RequestMapping(path = "/update_student", method = RequestMethod.POST)
+	public String updateStudent(@RequestParam(name = "id") int id,@RequestParam(name = "name") String name,@RequestParam(name = "email") String email,@RequestParam(name = "gender") String gender,@RequestParam(name = "mobile") long mobile, ModelMap modelMap, HttpSession httpSession) {
+		TeacherDTO signedInTeacher = (TeacherDTO) httpSession.getAttribute("teacher");
+		studentService.updateStudent(id, name, email, gender, mobile);
+		List<StudentDTO> students = studentService.findAllStudentsByClass(signedInTeacher);
+		modelMap.addAttribute("students", students);
+		modelMap.addAttribute("message", "Student Details Updated");
+		return "all_students";	
+	}
+	
+	@RequestMapping(path = "/edit_car", method = RequestMethod.POST)
+	public String getEditPage(@RequestParam(name = "id") int id, ModelMap modelMap) {
+		CarDTO car = carService.findCarById(id);
+		modelMap.addAttribute("car", car);
+		return "edit_car";
+	}
+	
+	@RequestMapping(path = "/search", method = RequestMethod.POST)
+	public String findAllCarsByPrice(@RequestParam(name = "low") double low,@RequestParam(name = "high") double high, ModelMap modelMap) {
+		List<CarDTO> cars = carService.findAllCarsByPrice(low, high);
+		if (cars != null) {
+			modelMap.addAttribute("cars", cars);
+		}else {
+			modelMap.addAttribute("message", "Cars not Available");
+		}
+		return "cars";
+	}
+}

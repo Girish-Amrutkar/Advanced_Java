@@ -1,0 +1,10 @@
+package com.jspiders.studentmgmt.controller;
+
+import com.jspiders.studentmgmt.service.StudentService;
+
+public class StudentController {
+
+	private StudentService studentService;
+	
+	public String addStudent()
+}

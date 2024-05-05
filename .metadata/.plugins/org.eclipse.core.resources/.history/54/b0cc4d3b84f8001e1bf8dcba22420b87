@@ -1,0 +1,22 @@
+package com.jspiders.studentmgmt.dto;
+
+import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.xml.transform.ErrorListener;
+
+import lombok.Data;
+
+@Data
+@Entity
+@Table(name = "teacher")
+public class TeacherDTO {
+
+	
+	private int id;
+	private String email;
+	private String password;
+	
+	private List<StudentDTO> students;
+}

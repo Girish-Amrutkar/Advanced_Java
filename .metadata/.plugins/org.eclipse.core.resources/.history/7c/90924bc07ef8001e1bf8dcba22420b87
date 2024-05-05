@@ -1,0 +1,29 @@
+package com.jspiders.studentmgmt.controller;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import com.jspiders.studentmgmt.dto.TeacherDTO;
+import com.jspiders.studentmgmt.service.StudentService;
+import com.jspiders.studentmgmt.service.TeacherService;
+
+@Controller
+public class StudentController {
+
+	@Autowired
+	private StudentService studentService;
+	@Autowired
+	private TeacherService teacherService;
+	
+	public String getAddPage(HttpSession httpSession) {
+		TeacherDTO signedInTeacher = (TeacherDTO) httpSession.getAttribute("teacher");
+		if (signedInTeacher != null) {
+			return "add_student";
+		}else {
+			return "sign_in";
+		}
+	}
+	
+}

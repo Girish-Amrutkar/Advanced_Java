@@ -1,0 +1,82 @@
+package com.jspiders.studentmgmt.dao;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+
+import org.springframework.stereotype.Component;
+
+import com.jspiders.studentmgmt.dto.StudentDTO;
+import com.jspiders.studentmgmt.dto.TeacherDTO;
+
+@Component
+public class TeacherDAO {
+
+	private EntityManagerFactory entityManagerFactory;
+	private EntityManager entityManager;
+	private EntityTransaction entityTransaction;
+	
+	public void openConnection() {
+		entityManagerFactory = Persistence.createEntityManagerFactory("student");
+		entityManager = entityManagerFactory.createEntityManager();
+		entityTransaction = entityManager.getTransaction();
+	}
+	
+	public void closeConnection() {
+		if (entityManager != null) {
+			entityManager.close();
+		}
+		if (entityManagerFactory != null) {
+			entityManagerFactory.close();
+		}
+		if (entityTransaction != null) {
+			if (entityTransaction.isActive()) {
+				entityTransaction.rollback();
+			}
+		}
+	}
+	
+	public TeacherDTO addTeacher(TeacherDTO teacherDTO) {
+		openConnection();
+		entityTransaction.begin();
+		entityManager.persist(teacherDTO);
+		entityTransaction.commit();
+		closeConnection();
+		return teacherDTO;
+	}
+	
+	public List<TeacherDTO> findAllTeacher(){
+		openConnection();
+		Query query = entityManager.createQuery("SELECT teacher FROM TeacherDTO teacher");
+		@SuppressWarnings("unchecked")
+		List<TeacherDTO> teachers = query.getResultList();
+		closeConnection();
+		return teachers;
+	}
+	
+	public void updateTeacher(int teacherId, int studentId) {
+		openConnection();
+		TeacherDTO teacher = entityManager.find(TeacherDTO.class, teacherId);
+		StudentDTO student = entityManager.find(StudentDTO.class, studentId);
+		List<StudentDTO> students = teacher.getStudents();
+		students.add(student);
+		teacher.setStudents(students);
+		entityTransaction.begin();
+		entityManager.persist(teacher);
+		entityTransaction.commit();
+		closeConnection();
+	}
+	
+	public void deleteTeacher(int id) {
+		openConnection();
+		TeacherDTO teacher = entityManager.find(TeacherDTO.class, id);
+		entityTransaction.begin();
+		entityManager.remove(teacher);
+		entityTransaction.commit();
+		closeConnection();
+	}
+}

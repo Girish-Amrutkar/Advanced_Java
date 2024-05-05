@@ -1,0 +1,74 @@
+package com.jspiders.studentmgmt.dao;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+
+import com.jspiders.studentmgmt.dto.StudentDTO;
+
+public class StudentDAO {
+
+	private EntityManagerFactory entityManagerFactory;
+	private EntityManager entityManager;
+	private EntityTransaction entityTransaction;
+	
+	public void openConnection() {
+		entityManagerFactory = Persistence.createEntityManagerFactory("student");
+		entityManager = entityManagerFactory.createEntityManager();
+		entityTransaction = entityManager.getTransaction();
+	}
+	
+	public void closeConnection() {
+		if (entityManager != null) {
+			entityManager.close();
+		}
+		if (entityManagerFactory != null) {
+			entityManagerFactory.close();
+		}
+		if (entityTransaction != null) {
+			if (entityTransaction.isActive()) {
+				entityTransaction.rollback();
+			}
+		}
+	}
+	
+	public StudentDTO addStudent(StudentDTO studentDTO) {
+		openConnection();
+		entityTransaction.begin();
+		entityManager.persist(studentDTO);
+		entityTransaction.commit();
+		closeConnection();
+		return studentDTO;
+	}
+	
+	public List<StudentDTO> findAllStudents(){
+		openConnection();
+		Query query = entityManager.createQuery("SELECT student FROM StudentDTO student");
+		@SuppressWarnings("unchecked")
+		List<StudentDTO> students = query.getResultList();
+		closeConnection();
+		return students;
+	}
+	
+	public List<StudentDTO> findAllStudentsByClass(int id){
+		openConnection();
+		TeacherDTO teacher = entityManager.find(TeacherDTO.class, id);
+		List<StudentDTO> students = teacher.getStudents();
+		closeConnection();
+		return students;
+	}
+	
+	public void deleteStudent(int teacherId, int studentId) {
+		openConnection();
+		TeacherDTO teacher = entityManager.find(TeacherDTO.class, teacherId);
+		List<StudentDTO> students = teacher.getStudents();
+		StudentDTO studentToBeDeleted = 
+		closeConnection();
+	}
+	
+	
+}

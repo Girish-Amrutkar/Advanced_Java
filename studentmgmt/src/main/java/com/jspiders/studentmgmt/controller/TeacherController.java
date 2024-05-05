@@ -1,0 +1,71 @@
+package com.jspiders.studentmgmt.controller;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.jspiders.studentmgmt.dto.TeacherDTO;
+import com.jspiders.studentmgmt.service.TeacherService;
+
+@Controller
+public class TeacherController {
+
+	@Autowired
+	private TeacherService teacherService;
+	
+	@RequestMapping(path = "/sign_up", method = RequestMethod.GET)
+	public String getSignUpPage() {
+		return "sign_up";
+	}
+	
+	@RequestMapping(path = "/add_teacher", method = RequestMethod.POST)
+	public String addTeacher(@RequestParam(name = "email") String email,@RequestParam(name= "password") String password, ModelMap modelMap) {
+		TeacherDTO addedTeacher = teacherService.addTeacher(email, password);
+		if (addedTeacher != null) {
+			modelMap.addAttribute("message","Signed Up successfully...");
+			return "sign_in";
+		}
+		else {
+			modelMap.addAttribute("message","Teacher Already Exists...");
+			return "sign_up";
+		}
+	}
+	
+	@RequestMapping(path = "/sign_in", method = RequestMethod.GET)
+	public String getSignInPage() {
+		return "sign_in";
+	}
+	
+	@RequestMapping(path = "/check_teacher", method = RequestMethod.POST)
+	public String checkTeacher(@RequestParam(name = "email") String email,@RequestParam(name = "password") String password, ModelMap modelMap, HttpSession httpSession) {
+		TeacherDTO signedInTeacher = teacherService.checkTeacher(email, password);
+		if (signedInTeacher != null) {
+			httpSession.setAttribute("user", signedInTeacher);
+			httpSession.setMaxInactiveInterval(1200);
+			return "home";
+		}else {
+			modelMap.addAttribute("message", "Invalid Email or Password");
+			return "sign_in";
+		}
+	}
+	
+	@RequestMapping(path = "/sign_out", method = RequestMethod.GET)
+	public String signOut(ModelMap modelMap, HttpSession httpSession) {
+		modelMap.addAttribute("message", "Signed Out Successfully");
+		httpSession.invalidate();
+		return "sign_in";
+	}
+	
+	@RequestMapping(path = "/delete_teacher", method = RequestMethod.GET)
+	public String deleteTeacher(ModelMap modelMap, HttpSession httpSession) {
+		TeacherDTO signedInTeacher = (TeacherDTO) httpSession.getAttribute("user");
+		teacherService.deleteTeacher(signedInTeacher);
+		modelMap.addAttribute("message", "Teacher Deleted...");
+		return "sign_in";
+	}
+}
